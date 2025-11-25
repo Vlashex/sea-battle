@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Lobby from "./pages/Lobby";
-import Placement from "./pages/Placement";
-import Battle from "./pages/Battle";
+import { Lobby } from "./modules/lobby/ui/lobby.component";
+import { Placement } from "./modules/placement";
+import { Battle } from "./modules/battle";
 
 export default function App() {
   return (
