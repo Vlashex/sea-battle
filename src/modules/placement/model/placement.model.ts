@@ -8,6 +8,7 @@ export interface PlacementModel {
   loading: boolean;
   toggleCell: (x: number, y: number) => void;
   handleSubmit: () => Promise<void>;
+  playerId?: string;
 }
 
 const SIZE = 10;
@@ -25,6 +26,20 @@ export function usePlacementModel(
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Получаем playerId из localStorage
+  const getPlayerId = (): string => {
+    if (!sessionKey) {
+      throw new Error('Session key not found');
+    }
+    
+    const playerId = localStorage.getItem(`session_${sessionKey}`);
+    if (!playerId) {
+      throw new Error('Player ID not found. Please return to lobby.');
+    }
+    
+    return playerId;
+  };
+
   const toggleCell = (x: number, y: number) => {
     setGrid((prev) => {
       const newGrid = prev.map((r) => [...r]);
@@ -39,19 +54,22 @@ export function usePlacementModel(
       return;
     }
 
-    const validation = placementService.validateShips(grid);
-    if (!validation.valid) {
-      alert(validation.error);
-      return;
-    }
-
-    setLoading(true);
     try {
+      const playerId = getPlayerId();
+      console.log(`Submitting ships for player ${playerId} in session ${sessionKey}`);
+
+      const validation = placementService.validateShips(grid);
+      if (!validation.valid) {
+        alert(validation.error);
+        return;
+      }
+
+      setLoading(true);
       const ships = placementService.convertToShips(grid);
-      await gameRepository.placeShips(sessionKey, ships);
+      await gameRepository.placeShips(sessionKey, ships, playerId);
       navigate(`/battle/${sessionKey}`);
     } catch (error) {
-      alert('Ошибка при отправке кораблей: ' + (error as Error).message);
+      alert('Ошибка: ' + (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -62,5 +80,6 @@ export function usePlacementModel(
     loading,
     toggleCell,
     handleSubmit,
+    playerId: sessionKey ? localStorage.getItem(`session_${sessionKey}`) || undefined : undefined,
   };
 }

@@ -7,14 +7,19 @@ export function useLobbyModel(sessionService: SessionService) {
   const [key, setKey] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const setSession = useSessionStore((state: any) => state.setSession);
+  const setSession = useSessionStore((state) => state.setSession);
 
   const handleCreate = async () => {
     setLoading(true);
     try {
-      const session = await sessionService.createSession();
-      setSession(session);
-      navigate(`/placement/${session.key}`);
+      const { sessionKey, playerId } = await sessionService.createSession();
+      
+      // Сохраняем playerId в localStorage
+      localStorage.setItem(`session_${sessionKey}`, playerId);
+      console.log(`Created session ${sessionKey} as player ${playerId}`);
+      
+      setSession({ key: sessionKey, status: 'waiting', players: [] });
+      navigate(`/placement/${sessionKey}`);
     } finally {
       setLoading(false);
     }
@@ -28,9 +33,14 @@ export function useLobbyModel(sessionService: SessionService) {
     
     setLoading(true);
     try {
-      const session = await sessionService.joinSession(key);
+      const { playerId, session } = await sessionService.joinSession(key.trim());
+      
+      // Сохраняем playerId в localStorage
+      localStorage.setItem(`session_${key.trim()}`, playerId);
+      console.log(`Joined session ${key.trim()} as player ${playerId}`);
+      
       setSession(session);
-      navigate(`/placement/${session.key}`);
+      navigate(`/placement/${key.trim()}`);
     } finally {
       setLoading(false);
     }

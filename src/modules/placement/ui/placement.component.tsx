@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { usePlacementModel } from '../model/placement.model';
-import { placementService } from '../../../shared/di/dependencies';import { gameApiAdapter } from '../../../shared/api/implementations/game-api.adapter';
+import { placementService } from '../../../core/services/placement.service';
+import { gameApiAdapter } from '../../../shared/api/implementations/game-api.adapter';
 
 // const SIZE = 10;
 
@@ -12,6 +13,9 @@ export function Placement() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-sky-950 text-white">
       <h1 className="text-2xl font-bold mb-4">Расставь свои корабли</h1>
       <p className="mb-2 text-gray-300">Сессия: {sessionKey}</p>
+      {model.playerId && (
+        <p className="mb-2 text-gray-300">Игрок: {model.playerId}</p>
+      )}
 
       <div className="grid grid-cols-10 gap-1 bg-sky-900 p-2 rounded-xl mb-4">
         {model.grid.map((row, y) =>

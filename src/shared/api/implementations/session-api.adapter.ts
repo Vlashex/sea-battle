@@ -6,24 +6,17 @@ import { SessionService } from '../../../core/services/session.service';
 export class SessionApiAdapter implements SessionRepository {
   private http = new HttpClient();
 
-  async create(): Promise<Session> {
-    const response = await this.http.request<{ sessionKey: string }>('/api/session', {
+  async create(): Promise<{ sessionKey: string; playerId: string }> {
+    const response = await this.http.request<{ sessionKey: string; playerId: string }>('/api/session', {
       method: 'POST',
     });
-    return { 
-      key: response.sessionKey, 
-      status: 'waiting', 
-      players: [] 
-    };
+    return response;
   }
 
-  async join(key: string): Promise<Session> {
-    const response = await this.http.request<{ sessionKey: string }>(`/api/session/${key}`);
-    return { 
-      key: response.sessionKey, 
-      status: 'placement', 
-      players: [] 
-    };
+  async join(key: string): Promise<{ playerId: string; session: Session }> {
+    return this.http.request<{ playerId: string; session: Session }>(`/api/session/${key}/join`, {
+      method: 'POST',
+    });
   }
 }
 

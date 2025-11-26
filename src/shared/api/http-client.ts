@@ -17,7 +17,7 @@ export class HttpClient {
   ): Promise<T> {
     for (let attempt = 1; attempt <= retries; attempt++) {
       try {
-        const res = await fetch(url, {
+        const res = await fetch("http://localhost:3000"+url, {
           ...options,
           headers: {
             'Content-Type': 'application/json',
